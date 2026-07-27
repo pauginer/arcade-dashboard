@@ -6,15 +6,21 @@ let cachedSql: ReturnType<typeof postgres> | null = null;
 // page-data collection) doesn't require DATABASE_URL to be set.
 function getSql(): ReturnType<typeof postgres> {
   if (!cachedSql) {
+    // Vercel's Postgres/Neon integration prefixes its env vars with the
+    // storage connection's name (e.g. STORAGE_DATABASE_URL) instead of the
+    // plain DATABASE_URL, depending on how the store was named when created.
     const connectionString =
       process.env.DATABASE_URL ||
       process.env.POSTGRES_URL ||
-      process.env.DATABASE_URL_UNPOOLED;
+      process.env.DATABASE_URL_UNPOOLED ||
+      process.env.STORAGE_DATABASE_URL ||
+      process.env.STORAGE_POSTGRES_URL ||
+      process.env.STORAGE_DATABASE_URL_UNPOOLED;
 
     if (!connectionString) {
       throw new Error(
-        "No database connection string found. Set DATABASE_URL (e.g. by connecting a Postgres/Neon " +
-          "integration in Vercel, or in .env.local for local development)."
+        "No database connection string found. Connect a Postgres/Neon integration in Vercel " +
+          "(Storage tab), or set DATABASE_URL in .env.local for local development."
       );
     }
 
