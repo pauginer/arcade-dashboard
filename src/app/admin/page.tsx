@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { getItems } from "@/lib/db";
-import { addItemAction, deleteItemAction } from "@/app/actions";
+import { addItemAction } from "@/app/actions";
+import EditableItemRow from "@/app/components/EditableItemRow";
 
 export const dynamic = "force-dynamic";
 
@@ -79,37 +79,7 @@ export default async function AdminPage() {
         ) : (
           <ul className="flex flex-col gap-3">
             {items.map((item) => (
-              <li
-                key={item.id}
-                className="flex items-center gap-4 rounded-xl border border-slate-800 bg-slate-900/60 p-3"
-              >
-                <div className="relative h-16 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-slate-800">
-                  {item.image_url && (
-                    <Image
-                      src={item.image_url}
-                      alt={item.title}
-                      fill
-                      sizes="96px"
-                      className="object-cover"
-                    />
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium">{item.title}</p>
-                  <p className="truncate text-sm text-slate-400">
-                    {item.destination_url}
-                  </p>
-                </div>
-                <form action={deleteItemAction}>
-                  <input type="hidden" name="id" value={item.id} />
-                  <button
-                    type="submit"
-                    className="rounded-lg border border-red-900 px-3 py-1.5 text-sm text-red-400 hover:bg-red-950"
-                  >
-                    Delete
-                  </button>
-                </form>
-              </li>
+              <EditableItemRow key={item.id} item={item} />
             ))}
           </ul>
         )}

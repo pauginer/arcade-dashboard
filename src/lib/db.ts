@@ -108,6 +108,29 @@ export async function addItem(input: {
   return rows[0] as unknown as Item;
 }
 
+export async function updateItem(
+  id: number,
+  input: {
+    title: string;
+    description: string;
+    imageUrl: string | null;
+    destinationUrl: string;
+  }
+): Promise<Item> {
+  await ensureSchema();
+  const sql = getSql();
+  const rows = await sql`
+    UPDATE items
+    SET title = ${input.title},
+        description = ${input.description},
+        image_url = ${input.imageUrl},
+        destination_url = ${input.destinationUrl}
+    WHERE id = ${id}
+    RETURNING id, title, description, image_url, destination_url, created_at
+  `;
+  return rows[0] as unknown as Item;
+}
+
 export async function deleteItem(id: number): Promise<void> {
   await ensureSchema();
   const sql = getSql();
