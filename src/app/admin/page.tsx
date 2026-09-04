@@ -12,12 +12,20 @@ export default async function AdminPage() {
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
       <header className="mb-8 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Manage games &amp; experiences</h1>
-        <Link
-          href="/"
-          className="text-sm text-slate-400 underline decoration-dotted underline-offset-4 hover:text-slate-200"
-        >
-          View display
-        </Link>
+        <div className="flex gap-4 text-sm text-slate-400">
+          <Link
+            href="/stats"
+            className="underline decoration-dotted underline-offset-4 hover:text-slate-200"
+          >
+            Stats
+          </Link>
+          <Link
+            href="/"
+            className="underline decoration-dotted underline-offset-4 hover:text-slate-200"
+          >
+            View display
+          </Link>
+        </div>
       </header>
 
       <section className="mb-10 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">

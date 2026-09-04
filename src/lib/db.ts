@@ -144,13 +144,19 @@ export async function logScan(itemId: number): Promise<void> {
 }
 
 // Number of scans for each item since the start of the current UTC day.
+//
+// The double `AT TIME ZONE 'UTC'` is not a no-op: the connection's session
+// timezone (e.g. a local Postgres defaults to the host's zone) affects what
+// `date_trunc` considers "the start of the day". Converting to a naive UTC
+// timestamp, truncating, then converting back pins the boundary to UTC
+// regardless of session timezone.
 export async function getTodayScanCounts(): Promise<Record<number, number>> {
   await ensureSchema();
   const sql = getSql();
   const rows = await sql`
     SELECT item_id, COUNT(*)::int AS count
     FROM scans
-    WHERE scanned_at >= date_trunc('day', now())
+    WHERE scanned_at >= date_trunc('day', now() AT TIME ZONE 'UTC') AT TIME ZONE 'UTC'
     GROUP BY item_id
   `;
   const counts: Record<number, number> = {};
@@ -158,4 +164,88 @@ export async function getTodayScanCounts(): Promise<Record<number, number>> {
     counts[row.item_id] = row.count;
   }
   return counts;
+}
+
+// First day (UTC) of the month that is `monthsBack - 1` months before the
+// current one, i.e. the start of the window returned by the functions below.
+function monthsBackCutoff(monthsBack: number): Date {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (monthsBack - 1), 1));
+}
+
+export type MonthlyTotal = { month: string; count: number };
+
+// Total scans per calendar month for the last `monthsBack` months (including
+// the current one), oldest first. Months with no scans are included as 0 so
+// charts get a continuous timeline.
+//
+// Month keys ("YYYY-MM") are computed in SQL as UTC text, not as JS Dates:
+// a `date_trunc('month', scanned_at)` result is a timestamptz that gets
+// parsed back into a JS Date depending on session/driver timezone handling,
+// which previously caused month boundaries to shift by the session's UTC
+// offset. Converting to UTC before truncating, then formatting straight to
+// text, sidesteps that entirely.
+export async function getMonthlyScanTotals(monthsBack = 6): Promise<MonthlyTotal[]> {
+  await ensureSchema();
+  const sql = getSql();
+  const cutoff = monthsBackCutoff(monthsBack);
+
+  const rows = (await sql`
+    SELECT to_char(date_trunc('month', scanned_at AT TIME ZONE 'UTC'), 'YYYY-MM') AS month,
+           COUNT(*)::int AS count
+    FROM scans
+    WHERE scanned_at >= ${cutoff}
+    GROUP BY month
+  `) as unknown as { month: string; count: number }[];
+
+  const countsByMonth = new Map<string, number>();
+  for (const row of rows) {
+    countsByMonth.set(row.month, row.count);
+  }
+
+  const now = new Date();
+  const totals: MonthlyTotal[] = [];
+  for (let i = monthsBack - 1; i >= 0; i--) {
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
+    const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+    totals.push({ month: key, count: countsByMonth.get(key) ?? 0 });
+  }
+  return totals;
+}
+
+export type MonthlyLeaderboardEntry = { itemId: number; title: string; count: number };
+export type MonthlyLeaderboard = { month: string; entries: MonthlyLeaderboardEntry[] };
+
+// The top `topN` most-scanned items for each of the last `monthsBack`
+// months, most recent month first. Months with no scans are omitted.
+export async function getMonthlyLeaderboard(
+  monthsBack = 6,
+  topN = 5
+): Promise<MonthlyLeaderboard[]> {
+  await ensureSchema();
+  const sql = getSql();
+  const cutoff = monthsBackCutoff(monthsBack);
+
+  const rows = (await sql`
+    SELECT to_char(date_trunc('month', s.scanned_at AT TIME ZONE 'UTC'), 'YYYY-MM') AS month,
+           s.item_id, i.title, COUNT(*)::int AS count
+    FROM scans s
+    JOIN items i ON i.id = s.item_id
+    WHERE s.scanned_at >= ${cutoff}
+    GROUP BY month, s.item_id, i.title
+    ORDER BY month DESC, count DESC
+  `) as unknown as { month: string; item_id: number; title: string; count: number }[];
+
+  const byMonth = new Map<string, MonthlyLeaderboardEntry[]>();
+  for (const row of rows) {
+    const entries = byMonth.get(row.month) ?? [];
+    if (entries.length < topN) {
+      entries.push({ itemId: row.item_id, title: row.title, count: row.count });
+    }
+    byMonth.set(row.month, entries);
+  }
+
+  return Array.from(byMonth.entries())
+    .sort(([a], [b]) => (a < b ? 1 : -1))
+    .map(([month, entries]) => ({ month, entries }));
 }

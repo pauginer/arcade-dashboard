@@ -22,12 +22,20 @@ export default async function DisplayPage() {
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
           Games &amp; Experiences
         </h1>
-        <Link
-          href="/admin"
-          className="text-sm text-slate-400 underline decoration-dotted underline-offset-4 hover:text-slate-200"
-        >
-          Manage list
-        </Link>
+        <div className="flex gap-4 text-sm text-slate-400">
+          <Link
+            href="/stats"
+            className="underline decoration-dotted underline-offset-4 hover:text-slate-200"
+          >
+            Stats
+          </Link>
+          <Link
+            href="/admin"
+            className="underline decoration-dotted underline-offset-4 hover:text-slate-200"
+          >
+            Manage list
+          </Link>
+        </div>
       </header>
 
       {cards.length === 0 ? (
