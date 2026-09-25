@@ -17,9 +17,9 @@ export default async function DisplayPage() {
   );
 
   return (
-    <main className="flex-1 px-8 py-10 sm:px-12">
-      <header className="mb-10 flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+    <main className="flex-1 px-6 py-5 sm:px-8">
+      <header className="mb-5 flex items-center justify-between">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
           Games &amp; Experiences
         </h1>
         <div className="flex gap-4 text-sm text-slate-400">
@@ -47,7 +47,7 @@ export default async function DisplayPage() {
           .
         </p>
       ) : (
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
           {cards.map(({ item, qrDataUrl }) => (
             <ItemCard
               key={item.id}

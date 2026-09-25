@@ -59,49 +59,51 @@ export default function ItemCard({
   }, [item.id]);
 
   return (
-    <div className="relative rounded-2xl">
+    <div className="relative rounded-xl">
       {celebrating && (
         <div
           key={pulseKey}
           aria-hidden
-          className="pointer-events-none absolute inset-0 z-30 rounded-2xl animate-[scan-glow_1.8s_ease-out_forwards]"
+          className="pointer-events-none absolute inset-0 z-30 rounded-xl animate-[scan-glow_1.8s_ease-out_forwards]"
         />
       )}
 
-      <article className="relative flex flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 shadow-lg">
-        <div className="relative aspect-video w-full bg-slate-800">
+      <article className="relative flex flex-col overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60 shadow-lg">
+        <div className="relative h-20 w-full bg-slate-800 sm:h-24">
           {item.image_url ? (
             <Image
               src={item.image_url}
               alt={item.title}
               fill
-              sizes="(min-width: 1280px) 33vw, (min-width: 640px) 50vw, 100vw"
+              sizes="(min-width: 1536px) 20vw, (min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
               className="object-cover"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-slate-500">
+            <div className="flex h-full w-full items-center justify-center text-sm text-slate-500">
               No image
             </div>
           )}
         </div>
 
-        <div className="flex flex-1 flex-col gap-4 p-6">
+        <div className="flex flex-1 flex-col gap-1.5 p-2.5">
           <div>
-            <h2 className="text-2xl font-semibold">{item.title}</h2>
+            <h2 className="text-base font-semibold leading-snug">{item.title}</h2>
             {item.description && (
-              <p className="mt-2 text-slate-300">{item.description}</p>
+              <p className="mt-1 text-sm text-slate-300 line-clamp-2">
+                {item.description}
+              </p>
             )}
           </div>
 
-          <div className="mt-auto flex items-end justify-between gap-4 pt-4">
-            <div className="rounded-xl bg-white p-2">
+          <div className="mt-auto flex items-end justify-between gap-3 pt-1.5">
+            <div className="rounded-lg bg-white p-1.5">
               {/* QR code is a base64 data URL generated per-request server-side */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={qrDataUrl}
                 alt={`QR code to ${item.title}`}
-                width={110}
-                height={110}
+                width={84}
+                height={84}
               />
             </div>
             <div className="relative text-right">
@@ -114,7 +116,7 @@ export default function ItemCard({
                   +{delta}
                 </span>
               )}
-              <div className="text-4xl font-bold tabular-nums">
+              <div className="text-2xl font-bold tabular-nums">
                 <span
                   key={celebrating ? `count-${pulseKey}` : "count-idle"}
                   className={
@@ -126,7 +128,7 @@ export default function ItemCard({
                   {count}
                 </span>
               </div>
-              <div className="text-xs uppercase tracking-wide text-slate-400">
+              <div className="text-[11px] uppercase tracking-wide text-slate-400">
                 scans today
               </div>
             </div>
