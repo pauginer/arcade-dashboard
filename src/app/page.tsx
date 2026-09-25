@@ -19,7 +19,7 @@ export default async function DisplayPage() {
   return (
     <main className="flex-1 px-6 py-2 sm:px-8">
       <header className="mb-2 flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+        <h1 className="font-serif text-2xl font-bold tracking-tight sm:text-3xl">
           Games, Apps &amp; Wiki
         </h1>
         <div className="flex gap-4 text-sm text-slate-400">
