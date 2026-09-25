@@ -5,10 +5,21 @@ import Image from "next/image";
 import type { Item } from "@/lib/db";
 import { updateItemAction, deleteItemAction } from "@/app/actions";
 
-export default function EditableItemRow({ item }: { item: Item }) {
+export default function EditableItemRow({
+  item,
+  onEditingChange,
+}: {
+  item: Item;
+  onEditingChange?: (editing: boolean) => void;
+}) {
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+
+  function setEditingState(value: boolean) {
+    setEditing(value);
+    onEditingChange?.(value);
+  }
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -17,7 +28,7 @@ export default function EditableItemRow({ item }: { item: Item }) {
     startTransition(async () => {
       try {
         await updateItemAction(formData);
-        setEditing(false);
+        setEditingState(false);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to save changes.");
       }
@@ -26,7 +37,7 @@ export default function EditableItemRow({ item }: { item: Item }) {
 
   if (!editing) {
     return (
-      <li className="flex items-center gap-4 rounded-xl border border-slate-800 bg-slate-900/60 p-3">
+      <div className="flex items-center gap-4 rounded-xl border border-slate-800 bg-slate-900/60 p-3">
         <div className="relative h-16 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-slate-800">
           {item.image_url && (
             <Image
@@ -44,7 +55,7 @@ export default function EditableItemRow({ item }: { item: Item }) {
         </div>
         <button
           type="button"
-          onClick={() => setEditing(true)}
+          onClick={() => setEditingState(true)}
           className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:bg-slate-800"
         >
           Edit
@@ -58,12 +69,12 @@ export default function EditableItemRow({ item }: { item: Item }) {
             Delete
           </button>
         </form>
-      </li>
+      </div>
     );
   }
 
   return (
-    <li className="rounded-xl border border-indigo-800 bg-slate-900/60 p-4">
+    <div className="rounded-xl border border-indigo-800 bg-slate-900/60 p-4">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input type="hidden" name="id" value={item.id} />
 
@@ -138,7 +149,7 @@ export default function EditableItemRow({ item }: { item: Item }) {
           <button
             type="button"
             onClick={() => {
-              setEditing(false);
+              setEditingState(false);
               setError(null);
             }}
             disabled={pending}
@@ -155,6 +166,6 @@ export default function EditableItemRow({ item }: { item: Item }) {
           </button>
         </div>
       </form>
-    </li>
+    </div>
   );
 }

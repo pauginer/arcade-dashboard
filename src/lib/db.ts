@@ -56,6 +56,11 @@ function ensureSchema(): Promise<void> {
         CREATE INDEX IF NOT EXISTS scans_item_id_scanned_at_idx
           ON scans (item_id, scanned_at)
       `;
+      // Added after the initial release: nullable so existing rows don't
+      // need a default, backfilled from `id` (which already matches
+      // creation order) so display order doesn't change on first deploy.
+      await sql`ALTER TABLE items ADD COLUMN IF NOT EXISTS sort_order INTEGER`;
+      await sql`UPDATE items SET sort_order = id WHERE sort_order IS NULL`;
     })();
   }
   return schemaReady;
@@ -76,7 +81,7 @@ export async function getItems(): Promise<Item[]> {
   const rows = await sql`
     SELECT id, title, description, image_url, destination_url, created_at
     FROM items
-    ORDER BY created_at ASC
+    ORDER BY sort_order ASC, created_at ASC
   `;
   return rows as unknown as Item[];
 }
@@ -101,11 +106,26 @@ export async function addItem(input: {
   await ensureSchema();
   const sql = getSql();
   const rows = await sql`
-    INSERT INTO items (title, description, image_url, destination_url)
-    VALUES (${input.title}, ${input.description}, ${input.imageUrl}, ${input.destinationUrl})
+    INSERT INTO items (title, description, image_url, destination_url, sort_order)
+    VALUES (
+      ${input.title}, ${input.description}, ${input.imageUrl}, ${input.destinationUrl},
+      (SELECT COALESCE(MAX(sort_order), 0) + 1 FROM items)
+    )
     RETURNING id, title, description, image_url, destination_url, created_at
   `;
   return rows[0] as unknown as Item;
+}
+
+// Persists a new display order: `orderedIds` lists every item id in the
+// order they should appear on the public display.
+export async function reorderItems(orderedIds: number[]): Promise<void> {
+  await ensureSchema();
+  const sql = getSql();
+  await sql.begin(async (tx) => {
+    for (let i = 0; i < orderedIds.length; i++) {
+      await tx`UPDATE items SET sort_order = ${i} WHERE id = ${orderedIds[i]}`;
+    }
+  });
 }
 
 export async function updateItem(

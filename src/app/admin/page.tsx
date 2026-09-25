@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getItems } from "@/lib/db";
 import { addItemAction } from "@/app/actions";
-import EditableItemRow from "@/app/components/EditableItemRow";
+import ReorderableItemList from "@/app/components/ReorderableItemList";
 
 export const dynamic = "force-dynamic";
 
@@ -81,15 +81,17 @@ export default async function AdminPage() {
       </section>
 
       <section>
-        <h2 className="mb-4 text-lg font-semibold">Current items</h2>
+        <h2 className="mb-1 text-lg font-semibold">Current items</h2>
         {items.length === 0 ? (
           <p className="text-slate-400">No items yet.</p>
         ) : (
-          <ul className="flex flex-col gap-3">
-            {items.map((item) => (
-              <EditableItemRow key={item.id} item={item} />
-            ))}
-          </ul>
+          <>
+            <p className="mb-4 text-sm text-slate-400">
+              Drag with the ⠿ handle, or use the arrows, to change the order
+              items appear in on the display.
+            </p>
+            <ReorderableItemList items={items} />
+          </>
         )}
       </section>
     </main>

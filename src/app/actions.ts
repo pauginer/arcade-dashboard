@@ -2,7 +2,7 @@
 
 import { put, del } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
-import { addItem, deleteItem, getItem, updateItem } from "@/lib/db";
+import { addItem, deleteItem, getItem, reorderItems, updateItem } from "@/lib/db";
 
 export async function addItemAction(formData: FormData): Promise<void> {
   const title = String(formData.get("title") || "").trim();
@@ -79,6 +79,16 @@ export async function updateItemAction(formData: FormData): Promise<void> {
   }
 
   await updateItem(id, { title, description, imageUrl, destinationUrl });
+  revalidatePath("/");
+  revalidatePath("/admin");
+}
+
+export async function reorderItemsAction(orderedIds: number[]): Promise<void> {
+  if (!Array.isArray(orderedIds) || orderedIds.some((id) => !Number.isInteger(id))) {
+    throw new Error("Invalid item order.");
+  }
+
+  await reorderItems(orderedIds);
   revalidatePath("/");
   revalidatePath("/admin");
 }
