@@ -85,25 +85,25 @@ export default function ItemCard({
           )}
         </div>
 
-        <div className="flex flex-1 flex-col gap-0.5 p-1.5">
+        <div className="flex flex-1 flex-col gap-1.5 p-2.5">
           <div>
-            <h2 className="text-sm font-semibold leading-snug">{item.title}</h2>
+            <h2 className="text-base font-semibold leading-snug">{item.title}</h2>
             {item.description && (
-              <p className="mt-0.5 text-xs text-slate-300 line-clamp-2">
+              <p className="mt-1 text-sm text-slate-300 line-clamp-2">
                 {item.description}
               </p>
             )}
           </div>
 
-          <div className="mt-auto flex items-end justify-between gap-3 pt-0.5">
+          <div className="mt-auto flex items-end justify-between gap-3 pt-1">
             <div className="rounded-lg bg-white p-1.5">
               {/* QR code is a base64 data URL generated per-request server-side */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={qrDataUrl}
                 alt={`QR code to ${item.title}`}
-                width={80}
-                height={80}
+                width={84}
+                height={84}
               />
             </div>
             <div className="relative text-right">
@@ -116,7 +116,7 @@ export default function ItemCard({
                   +{delta}
                 </span>
               )}
-              <div className="text-xl font-bold tabular-nums">
+              <div className="text-2xl font-bold tabular-nums">
                 <span
                   key={celebrating ? `count-${pulseKey}` : "count-idle"}
                   className={
@@ -128,7 +128,7 @@ export default function ItemCard({
                   {count}
                 </span>
               </div>
-              <div className="text-[10px] uppercase tracking-wide text-slate-400">
+              <div className="text-xs uppercase tracking-wide text-slate-400">
                 scans today
               </div>
             </div>
