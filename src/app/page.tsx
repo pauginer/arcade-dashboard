@@ -20,7 +20,7 @@ export default async function DisplayPage() {
     <main className="flex-1 px-6 py-3 sm:px-8">
       <header className="mb-3 flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-          Games &amp; Experiences
+          Games, Apps &amp; Wiki
         </h1>
         <div className="flex gap-4 text-sm text-slate-400">
           <Link
