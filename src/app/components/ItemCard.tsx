@@ -69,7 +69,7 @@ export default function ItemCard({
       )}
 
       <article className="relative flex flex-col overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60 shadow-lg">
-        <div className="relative h-20 w-full bg-slate-800 sm:h-24">
+        <div className="relative h-28 w-full bg-slate-800 sm:h-32">
           {item.image_url ? (
             <Image
               src={item.image_url}
@@ -85,7 +85,7 @@ export default function ItemCard({
           )}
         </div>
 
-        <div className="flex flex-1 flex-col gap-1.5 p-2.5">
+        <div className="flex flex-1 flex-col gap-1 p-2">
           <div>
             <h2 className="text-base font-semibold leading-snug">{item.title}</h2>
             {item.description && (
@@ -95,7 +95,7 @@ export default function ItemCard({
             )}
           </div>
 
-          <div className="mt-auto flex items-end justify-between gap-3 pt-1.5">
+          <div className="mt-auto flex items-end justify-between gap-3 pt-1">
             <div className="rounded-lg bg-white p-1.5">
               {/* QR code is a base64 data URL generated per-request server-side */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
